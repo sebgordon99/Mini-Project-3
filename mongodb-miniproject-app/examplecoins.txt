@@ -1,0 +1,12 @@
+| Name               | Symbol | API ID        |
+| ------------------ | ------ | ------------- |
+| Bitcoin            | BTC    | `bitcoin`     |
+| Ethereum           | ETH    | `ethereum`    |
+| Tether             | USDT   | `tether`      |
+| Binance Coin (BNB) | BNB    | `binancecoin` |
+| Solana             | SOL    | `solana`      |
+| XRP                | XRP    | `ripple`      |
+| USD Coin           | USDC   | `usd-coin`    |
+| Cardano            | ADA    | `cardano`     |
+| Avalanche          | AVAX   | `avalanche-2` |
+| Dogecoin           | DOGE   | `dogecoin`    |
