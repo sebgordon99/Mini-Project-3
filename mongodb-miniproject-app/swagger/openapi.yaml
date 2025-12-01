@@ -1,0 +1,234 @@
+openapi: 3.0.3
+info:
+  title: Crypto Price Tracker API
+  description: |
+    Simple API to track cryptocurrencies and sync prices from CoinGecko.
+    Implements CRUD for tracked coins and a sync endpoint to update prices.
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8081
+    description: Local development server
+
+paths:
+  /api/coins:
+    post:
+      summary: Create a new coin to track
+      tags: [Coins]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoinCreate"
+      responses:
+        "201":
+          description: Coin created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Coin"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: Get all tracked coins
+      tags: [Coins]
+      responses:
+        "200":
+          description: List of coins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Coin"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/coins/update-prices:
+    put:
+      summary: Sync prices for all tracked coins from CoinGecko
+      tags: [Coins]
+      responses:
+        "200":
+          description: Prices updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceUpdateResponse"
+        "500":
+          description: Server error / API fetch failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/coins/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: MongoDB ObjectId of the coin
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get a single coin by id
+      tags: [Coins]
+      responses:
+        "200":
+          description: Coin found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Coin"
+        "404":
+          description: Coin not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update a coin
+      tags: [Coins]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoinUpdate"
+      responses:
+        "200":
+          description: Updated coin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Coin"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Coin not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a coin
+      tags: [Coins]
+      responses:
+        "200":
+          description: Deletion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Coin deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Coin:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 60c72b2f9b1e8b0017a549c9
+        name:
+          type: string
+          example: Bitcoin
+        symbol:
+          type: string
+          example: btc
+        api_id:
+          type: string
+          description: CoinGecko identifier (used to fetch data)
+          example: bitcoin
+        current_price:
+          type: number
+          format: double
+          example: 68234.12
+        market_cap:
+          type: number
+          format: double
+          example: 1273456789123
+        last_updated:
+          type: string
+          format: date-time
+          example: "2025-12-01T10:30:00.000Z"
+      required:
+        - name
+        - symbol
+        - api_id
+
+    CoinCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Bitcoin
+        symbol:
+          type: string
+          example: btc
+        api_id:
+          type: string
+          example: bitcoin
+      required:
+        - name
+        - symbol
+        - api_id
+
+    CoinUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        symbol:
+          type: string
+        api_id:
+          type: string
+        current_price:
+          type: number
+        market_cap:
+          type: number
+      example:
+        current_price: 70000.5
+
+    PriceUpdateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Prices updated
+        updatedCount:
+          type: integer
+          description: Number of coins updated (optional)
+          example: 5
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Not found"
+
+tags:
+  - name: Coins
+    description: Endpoints for managing tracked cryptocurrencies
